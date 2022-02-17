@@ -31,3 +31,28 @@ let rec concat lst =
 let test1 = concat [] = ""
 let test2 = concat [ "本" ] = "本"
 let test3 = concat [ "春"; "夏"; "秋"; "冬" ] = "春夏秋冬"
+
+(* 昇順に並んでいる整数のリスト lst と整数 n を受け取ると、昇順となる位置に n を挿入したリストを返す *)
+(* insert : int list -> int -> int list *)
+let rec insert lst n =
+  match lst with
+  | [] -> [ n ]
+  | first :: rest ->
+      if n <= first then n :: first :: rest else first :: insert rest n
+
+(* テスト *)
+let test1 = insert [] 1 = [ 1 ]
+let test2 = insert [ 5 ] 1 = [ 1; 5 ]
+let test3 = insert [ 1 ] 5 = [ 1; 5 ]
+let test4 = insert [ 2; 5; 5; 6 ] 5 = [ 2; 5; 5; 5; 6 ]
+let test5 = insert [ -5; -3; 0; 1; 6 ] (-3) = [ -5; -3; -3; 0; 1; 6 ]
+
+(* 整数のリストを受け取ると、それを昇順に整列したリストを返す *)
+(* ins_sort : int list -> int list *)
+let rec ins_sort lst =
+  match lst with [] -> [] | first :: rest -> insert (ins_sort rest) first
+
+(* テスト *)
+let test1 = ins_sort [] = []
+let test2 = ins_sort [ 5; 3; 8; 1; 7; 4 ] = [ 1; 3; 4; 5; 7; 8 ]
+let test3 = ins_sort [ 1; -5; 6; -3; 0 ] = [ -5; -3; 0; 1; 6 ]

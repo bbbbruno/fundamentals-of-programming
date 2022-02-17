@@ -8,68 +8,43 @@ type person_t = {
   blood_type : string; (* 血液型 *)
 }
 
+(* personのデータの例 *)
+let person1 =
+  {
+    name = "浅井里奈";
+    height = 1.62;
+    weight = 57.7;
+    birth_month = 3;
+    birth_day = 13;
+    blood_type = "B";
+  }
+
+let person2 =
+  {
+    name = "吉田誠";
+    height = 1.76;
+    weight = 68.1;
+    birth_month = 9;
+    birth_day = 2;
+    blood_type = "A";
+  }
+
+let person3 =
+  {
+    name = "金子健";
+    height = 1.73;
+    weight = 65.8;
+    birth_month = 12;
+    birth_day = 24;
+    blood_type = "A";
+  }
+
 (* person_t list 型のデータの例 *)
 let lst1 = []
-
-let lst2 =
-  [
-    {
-      name = "asai";
-      height = 1.62;
-      weight = 57.7;
-      birth_month = 3;
-      birth_day = 13;
-      blood_type = "B";
-    };
-  ]
-
-let lst3 =
-  [
-    {
-      name = "浅井里奈";
-      height = 1.62;
-      weight = 57.7;
-      birth_month = 3;
-      birth_day = 13;
-      blood_type = "B";
-    };
-    {
-      name = "吉田誠";
-      height = 1.76;
-      weight = 68.1;
-      birth_month = 9;
-      birth_day = 2;
-      blood_type = "A";
-    };
-  ]
-
-let lst4 =
-  [
-    {
-      name = "浅井里奈";
-      height = 1.62;
-      weight = 57.7;
-      birth_month = 3;
-      birth_day = 13;
-      blood_type = "B";
-    };
-    {
-      name = "吉田誠";
-      height = 1.76;
-      weight = 68.1;
-      birth_month = 9;
-      birth_day = 2;
-      blood_type = "A";
-    };
-    {
-      name = "金子健";
-      height = 1.73;
-      weight = 65.8;
-      birth_month = 12;
-      birth_day = 24;
-      blood_type = "A";
-    };
-  ]
+let lst2 = [ person1 ]
+let lst3 = [ person1; person2 ]
+let lst4 = [ person2; person1 ]
+let lst5 = [ person3; person1; person2 ]
 
 (* 目的：person_t型のリストを受け取ったら、血液型がA型の人の数を返す *)
 (* count_blood_type_A : person_t list -> int *)
@@ -91,7 +66,8 @@ let rec count_blood_type_A lst =
 let test1 = count_blood_type_A lst1 = 0
 let test2 = count_blood_type_A lst2 = 0
 let test3 = count_blood_type_A lst3 = 1
-let test4 = count_blood_type_A lst4 = 2
+let test4 = count_blood_type_A lst4 = 1
+let test4 = count_blood_type_A lst5 = 2
 
 (* 誕生日（月と日）を受け取ったら、星座を返す *)
 (* int -> int -> string *)
@@ -146,3 +122,52 @@ let test1 = collect_virgo lst1 = []
 let test2 = collect_virgo lst2 = []
 let test3 = collect_virgo lst3 = [ "吉田誠" ]
 let test4 = collect_virgo lst4 = [ "吉田誠" ]
+let test4 = collect_virgo lst5 = [ "吉田誠" ]
+
+(* 目的：昇順に並んでいるperson_t型のリストの正しい位置にpersonを挿入する *)
+(* person_insert : person_t list -> person_t -> person_t list *)
+let rec person_insert lst person0 =
+  match lst with
+  | [] -> [ person0 ]
+  | ({
+       name = n;
+       height = h;
+       weight = w;
+       birth_month = bm;
+       birth_day = bd;
+       blood_type = bt;
+     } as person)
+    :: rest -> (
+      match person0 with
+      | {
+       name = n0;
+       height = h0;
+       weight = w0;
+       birth_month = bm0;
+       birth_day = bd0;
+       blood_type = bt0;
+      } ->
+          if n0 <= n then person0 :: person :: rest
+          else person :: person_insert rest person0)
+
+(* テスト *)
+let test1 = person_insert [] person1 = [ person1 ]
+let test2 = person_insert [ person2 ] person1 = [ person2; person1 ]
+let test3 = person_insert [ person1 ] person2 = [ person2; person1 ]
+
+let test4 =
+  person_insert [ person1; person2 ] person3 = [ person1; person2; person3 ]
+
+(* 目的：person_tのリストを受け取ると、それをnameフィールドの順に整列したリストを返す *)
+(* person_ins_sort : person_t list -> person_t list *)
+let rec person_ins_sort lst =
+  match lst with
+  | [] -> []
+  | first :: rest -> person_insert (person_ins_sort rest) first
+
+(* テスト *)
+let test5 = person_ins_sort lst1 = []
+let test6 = person_ins_sort lst2 = [ person1 ]
+let test7 = person_ins_sort lst3 = [ person2; person1 ]
+let test8 = person_ins_sort lst4 = [ person2; person1 ]
+let test9 = person_ins_sort lst5 = [ person2; person1; person3 ]
