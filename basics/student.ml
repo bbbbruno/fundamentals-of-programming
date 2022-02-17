@@ -56,3 +56,20 @@ let test8 = student_ins_sort lst4 = [ student4; student3 ]
 let test9 =
   student_ins_sort lst5
   = [ student6; student5; student4; student3; student2; student1 ]
+
+(* 目的：生徒のリストの中から最高得点をとった生徒を返す *)
+(* student_max : student_t list -> student_t *)
+let rec student_max lst =
+  match lst with
+  | [] -> { name = ""; score = min_int; grade = "" }
+  | ({ name = n; score = s; grade = g } as student) :: rest -> (
+      let rest_max = student_max rest in
+      match rest_max with
+      | { name = max_n; score = max_s; grade = max_g } ->
+          if s < max_s then rest_max else student)
+
+(* テスト *)
+let test1 = student_max lst2 = student2
+let test2 = student_max lst3 = student3
+let test3 = student_max lst4 = student3
+let test4 = student_max lst5 = student1
