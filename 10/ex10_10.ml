@@ -7,6 +7,6 @@ let rec alphabet_to_kangi alph lst =
       if alph = a then n else alphabet_to_kangi alph rest
 
 (* テスト *)
-let test1 = alphabet_to_kangi "myogadani" global_station_list = "茗荷谷"
-let test2 = alphabet_to_kangi "shibuya" global_station_list = "渋谷"
-let test3 = alphabet_to_kangi "otemachi" global_station_list = "大手町"
+let test1 = alphabet_to_kangi "myogadani" global_station_name_list = "茗荷谷"
+let test2 = alphabet_to_kangi "shibuya" global_station_name_list = "渋谷"
+let test3 = alphabet_to_kangi "otemachi" global_station_name_list = "大手町"

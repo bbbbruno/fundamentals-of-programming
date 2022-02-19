@@ -1,12 +1,12 @@
-(* 駅ひとつ分のデータを表す型 *)
-type station_t = {
+(* 駅名ひとつ分のデータを表す型 *)
+type station_name_t = {
   name : string; (* 駅名 *)
   hiragana : string; (* ひらがなの駅名 *)
   alphabet : string; (* ローマ字の駅名 *)
   line : string; (* その駅が所属する路線名 *)
 }
 
-let global_station_list =
+let global_station_name_list =
   [
     {
       name = "代々木上原";

@@ -1,10 +1,10 @@
 (* 目的：ふたつの駅の間の距離を文字列で表現する *)
 (* display_station_distance : string -> string -> string *)
 let display_station_distance a1 a2 =
-  let k1 = alphabet_to_kangi a1 global_station_list in
+  let k1 = alphabet_to_kangi a1 global_station_name_list in
   if k1 = "" then a1 ^ " という駅は存在しません"
   else
-    let k2 = alphabet_to_kangi a2 global_station_list in
+    let k2 = alphabet_to_kangi a2 global_station_name_list in
     if k2 = "" then a2 ^ " という駅は存在しません"
     else
       let d = get_station_distance k1 k2 global_station_connection_list in
