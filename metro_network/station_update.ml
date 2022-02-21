@@ -28,13 +28,11 @@ let station_list =
   [ station1; station2; station3; station4; station5; station6 ]
 
 (* 目的：直前に確定した駅pと未確定の駅のリストvを受け取ると、必要な更新処理を行なった後の未確定の駅のリストを返す *)
-(* updates : station_t -> station_t list -> station_t list *)
-let updates p v =
+(* updates : station_t -> station_t list -> station_connection_t list -> station_t list *)
+let updates p v lst =
   List.map
     (fun q ->
-      let d =
-        get_station_distance p.name q.name global_station_connection_list
-      in
+      let d = get_station_distance p.name q.name lst in
       if d = infinity then q
       else if p.shortest_distance +. d < q.shortest_distance then
         {
@@ -46,10 +44,12 @@ let updates p v =
     v
 
 (* テスト *)
-let test1 = updates station2 [] = []
+let test1 = updates station2 [] global_station_connection_list = []
 
 let test2 =
-  updates station2 [ station1; station4; station5; station6 ]
+  updates station2
+    [ station1; station4; station5; station6 ]
+    global_station_connection_list
   = [
       {
         name = "池袋";

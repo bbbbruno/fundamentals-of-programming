@@ -1,5 +1,5 @@
 (* ローマ字の駅名と駅リスト（station_t型）を与えると、その駅の漢字表記を返す *)
-(* alphabet_to_kangi : string -> station_t list -> string *)
+(* alphabet_to_kangi : string -> station_name_t list -> string *)
 let rec alphabet_to_kangi alph lst =
   match lst with
   | [] -> ""
