@@ -5,6 +5,16 @@ type station_t = {
   station_names : string list; (* 手間の駅名のリスト *)
 }
 
+(* 駅間の情報を表す木の型
+   （漢字の）駅名と、その駅に直接つながっている駅名（駅名）とその駅までの距離の組のリスト、を格納する *)
+type station_connection_tree_t =
+  | Empty
+  | Node of
+      station_connection_tree_t
+      * string
+      * (string * float) list
+      * station_connection_tree_t
+
 (* 駅の例 *)
 let station1 = { name = "池袋"; shortest_distance = infinity; station_names = [] }
 
@@ -27,29 +37,49 @@ let station6 =
 let station_list =
   [ station1; station2; station3; station4; station5; station6 ]
 
-(* station_t型のリストを受け取ると、「最短距離最小の駅」と「最短距離最小の駅以外からなるリスト」の組を返す *)
-(* separate_shortest : station_t list -> station_t * station_t list *)
-let rec separate_shortest lst =
-  match lst with
-  | [] -> ({ name = ""; shortest_distance = infinity; station_names = [] }, [])
-  | first :: rest ->
-      List.fold_right
-        (fun st (p, v) ->
-          if st.shortest_distance < p.shortest_distance then (st, p :: v)
-          else (p, st :: v))
-        rest (first, [])
+(* 駅間型の木と駅間を受け取ると、その片方のデータを挿入した木を返す。 *)
+(* insert : station_connection_tree_t -> string * int -> station_connection_tree_t *)
+let rec insert tree start last distance =
+  match tree with
+  | Empty -> Node (Empty, start, [ (last, distance) ], Empty)
+  | Node (t1, name, lst, t2) ->
+      if start = name then Node (t1, name, (last, distance) :: lst, t2)
+      else if start < name then
+        Node (insert t1 start last distance, name, lst, t2)
+      else Node (t1, name, lst, insert t2 start last distance)
 
-(* 目的：漢字の駅名二つと駅間リストを与えると、その２駅間の距離を返す *)
-(* get_station_distance : string -> string -> station_connection_t list -> int *)
-let rec get_station_distance k1 k2 station_connection_list =
-  match station_connection_list with
-  | [] -> infinity
-  | first :: rest ->
-      if
-        (first.start_station = k1 && first.last_station = k2)
-        || (first.start_station = k2 && first.last_station = k1)
-      then first.distance
-      else get_station_distance k1 k2 rest
+(* 駅間型の木と駅間を受け取ると、その両方向のデータを挿入した木を返す。 *)
+(* insert_station_connection : station_connection_tree_t -> station_connection_t -> station_connection_tree_t *)
+let insert_station_connection tree conn =
+  match conn with
+  | { start_station = s; last_station = l; distance = d } ->
+      insert (insert tree l s d) s l d
+
+(* 目的：駅間型の木と駅間リストを受け取ると、リストの中の全ての駅間を挿入した木を返す。 *)
+(* inserts_station_connection : station_connection_tree_t -> station_connection list -> station_connection_tree_t *)
+let rec inserts_station_connection tree lst =
+  List.fold_left
+    (fun result item -> insert_station_connection result item)
+    Empty lst
+
+(* 最短距離最小の駅の候補とその駅以外からなるリストを受け取ると、「最短距離最小の駅」と「最短距離最小の駅以外からなるリスト」の組を返す *)
+(* separate_shortest : station_t list -> station_t * station_t list *)
+let rec separate_shortest p lst =
+  List.fold_right
+    (fun st (p, v) ->
+      if st.shortest_distance < p.shortest_distance then (st, p :: v)
+      else (p, st :: v))
+    lst (p, [])
+
+(* 目的：漢字の駅名二つと駅間の木を与えると、その２駅間の距離を返す *)
+(* get_station_distance : string -> string -> station_connection_tree_t -> int *)
+let rec get_station_distance k1 k2 tree =
+  match tree with
+  | Empty -> infinity
+  | Node (t1, name, lst, t2) ->
+      if k1 < name then get_station_distance k1 k2 t1
+      else if k1 > name then get_station_distance k1 k2 t2
+      else assoc k2 lst
 
 (* 目的：直前に確定した駅pと未確定の駅のリストvを受け取ると、必要な更新処理を行なった後の未確定の駅のリストを返す *)
 (* updates : station_t -> station_t list -> station_connection_t list -> station_t list *)
@@ -75,17 +105,21 @@ let updates p v lst =
 let rec dijkstra_main lst1 lst2 =
   match lst1 with
   | [] -> []
-  | _ ->
-      let p, v = separate_shortest lst1 in
+  | first :: rest ->
+      let p, v = separate_shortest first rest in
       p :: dijkstra_main (updates p v lst2) lst2
 
 (* 再帰のたびに v が短くなっていくので、いずれ [] になり停止する *)
 
 (* テスト *)
-let test1 = dijkstra_main [] global_station_connection_list = []
+let test1 =
+  dijkstra_main []
+    (inserts_station_connection Empty global_station_connection_list)
+  = []
 
 let test2 =
-  dijkstra_main station_list global_station_connection_list
+  dijkstra_main station_list
+    (inserts_station_connection Empty global_station_connection_list)
   = [
       { name = "茗荷谷"; shortest_distance = 0.; station_names = [ "茗荷谷" ] };
       {
@@ -175,7 +209,10 @@ let dijkstra start last =
   let station_list =
     make_station_list_and_initialize station_name_list start_station_kanji
   in
-  let result = dijkstra_main station_list global_station_connection_list in
+  let result =
+    dijkstra_main station_list
+      (inserts_station_connection Empty global_station_connection_list)
+  in
   find_station result last_station_kanji
 
 let test4 =
