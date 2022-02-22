@@ -12,13 +12,16 @@ type station_connection_tree_t =
 (* assoc : string -> (string * float) list -> int *)
 let rec assoc k lst =
   match lst with
-  | [] -> infinity
+  | [] -> raise Not_found
   | (name, distance) :: rest -> if name = k then distance else assoc k rest
 
 (* テスト *)
-let test1 = assoc "後楽園" [] = infinity
+(* let test1 = assoc "後楽園" [] *)
+(* Not_foundを起こす *)
 let test2 = assoc "後楽園" [ ("新大塚", 1.2); ("後楽園", 1.8) ] = 1.8
-let test3 = assoc "池袋" [ ("新大塚", 1.2); ("後楽園", 1.8) ] = infinity
+
+(* let test3 = assoc "池袋" [ ("新大塚", 1.2); ("後楽園", 1.8) ] *)
+(* Not_foundを起こす *)
 
 (* 駅間型の木と駅間を受け取ると、その片方のデータを挿入した木を返す。 *)
 (* insert : station_connection_tree_t -> string * int -> station_connection_tree_t *)

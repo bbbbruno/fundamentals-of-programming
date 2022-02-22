@@ -5,6 +5,9 @@ type station_t = {
   station_names : string list; (* 手間の駅名のリスト *)
 }
 
+let station_connection_tree =
+  inserts_station_connection Empty global_station_connection_list
+
 (* 駅の例 *)
 let station1 = { name = "池袋"; shortest_distance = infinity; station_names = [] }
 
@@ -32,24 +35,25 @@ let station_list =
 let updates p v lst =
   List.map
     (fun q ->
-      let d = get_station_distance p.name q.name lst in
-      if d = infinity then q
-      else if p.shortest_distance +. d < q.shortest_distance then
-        {
-          name = q.name;
-          shortest_distance = p.shortest_distance +. d;
-          station_names = q.name :: p.station_names;
-        }
-      else q)
+      try
+        let d = get_station_distance p.name q.name lst in
+        if p.shortest_distance +. d < q.shortest_distance then
+          {
+            name = q.name;
+            shortest_distance = p.shortest_distance +. d;
+            station_names = q.name :: p.station_names;
+          }
+        else q
+      with Not_found -> q)
     v
 
 (* テスト *)
-let test1 = updates station2 [] global_station_connection_list = []
+let test1 = updates station2 [] station_connection_tree = []
 
 let test2 =
   updates station2
     [ station1; station4; station5; station6 ]
-    global_station_connection_list
+    station_connection_tree
   = [
       {
         name = "池袋";

@@ -75,27 +75,28 @@ let rec separate_shortest p lst =
 (* get_station_distance : string -> string -> station_connection_tree_t -> int *)
 let rec get_station_distance k1 k2 tree =
   match tree with
-  | Empty -> infinity
+  | Empty -> raise Not_found
   | Node (t1, name, lst, t2) ->
       if k1 < name then get_station_distance k1 k2 t1
       else if k1 > name then get_station_distance k1 k2 t2
-      else assoc k2 lst
+      else List.assoc k2 lst
 
 (* 目的：直前に確定した駅pと未確定の駅のリストvを受け取ると、必要な更新処理を行なった後の未確定の駅のリストを返す *)
 (* updates : station_t -> station_t list -> station_connection_t list -> station_t list *)
 let updates p v lst =
   List.map
     (fun q ->
-      let d = get_station_distance p.name q.name lst in
-      if d = infinity then q
-      else if p.shortest_distance +. Float.round d < q.shortest_distance then
-        {
-          name = q.name;
-          shortest_distance =
-            Float.round ((p.shortest_distance +. d) *. 10.) /. 10.;
-          station_names = q.name :: p.station_names;
-        }
-      else q)
+      try
+        let d = get_station_distance p.name q.name lst in
+        if p.shortest_distance +. Float.round d < q.shortest_distance then
+          {
+            name = q.name;
+            shortest_distance =
+              Float.round ((p.shortest_distance +. d) *. 10.) /. 10.;
+            station_names = q.name :: p.station_names;
+          }
+        else q
+      with Not_found -> q)
     v
 
 (* station_t型の（未確定の）駅のリストとstation_connection_t型の駅間のリストを受け取ると、
@@ -167,11 +168,13 @@ let rec station_ins_sort lst =
   | [] -> []
   | first :: rest -> station_insert (station_ins_sort rest) first
 
+exception No_such_station of string
+
 (* ローマ字の駅名と駅リスト（station_name_t型）を与えると、その駅の漢字表記を返す *)
 (* alphabet_to_kangi : string -> station_name_t list -> string *)
 let rec alphabet_to_kangi alph lst =
   match lst with
-  | [] -> ""
+  | [] -> raise (No_such_station alph)
   | first :: rest ->
       if alph = first.alphabet then first.kanji else alphabet_to_kangi alph rest
 
