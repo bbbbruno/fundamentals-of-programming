@@ -1,3 +1,5 @@
+open RedBlack
+
 (* 駅の例 *)
 let station1 = { name = "池袋"; shortest_distance = infinity; station_names = [] }
 
@@ -23,7 +25,7 @@ let station_list =
 (* station_t型の（未確定の）駅のリストとstation_connection_t型の駅間のリストを受け取ると、
    ダイクストラのアルゴリズムに従って各駅についての最短距離と最短経路が正しく入ったstation_t型のリストを返す *)
 (* ここで v0 はまだ残っている未確定の駅のリスト *)
-(* dijkstra_main : station_t list -> Tree.t -> station_t list *)
+(* dijkstra_main : station_t list -> RedBlack.t -> station_t list *)
 let rec dijkstra_main lst1 tree =
   match lst1 with
   | [] -> []
@@ -36,12 +38,12 @@ let rec dijkstra_main lst1 tree =
 (* テスト *)
 let test1 =
   dijkstra_main []
-    (inserts_station_connection Tree.empty global_station_connection_list)
+    (inserts_station_connection empty global_station_connection_list)
   = []
 
 let test2 =
   dijkstra_main station_list
-    (inserts_station_connection Tree.empty global_station_connection_list)
+    (inserts_station_connection empty global_station_connection_list)
   = [
       { name = "茗荷谷"; shortest_distance = 0.; station_names = [ "茗荷谷" ] };
       {
@@ -93,7 +95,7 @@ let dijkstra start last =
   in
   let result =
     dijkstra_main station_list
-      (inserts_station_connection Tree.empty global_station_connection_list)
+      (inserts_station_connection empty global_station_connection_list)
   in
   find_station result last_station_kanji
 

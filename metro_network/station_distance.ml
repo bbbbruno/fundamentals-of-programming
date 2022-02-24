@@ -1,3 +1,5 @@
+open RedBlack
+
 exception No_such_station of string
 
 (* ローマ字の駅名と駅リスト（station_t型）を与えると、その駅の漢字表記を返す *)
@@ -18,8 +20,8 @@ let test3 = alphabet_to_kangi "otemachi" global_station_name_list = "大手町"
 
 (* 目的：漢字の駅名二つと駅間の木を与えると、その２駅間の距離を返す *)
 (* 見つからなかったら例外Not_foundを起こす *)
-(* get_station_distance : string -> string -> Tree.t -> int *)
-let get_station_distance k1 k2 tree = List.assoc k2 (Tree.search tree k1)
+(* get_station_distance : string -> string -> RedBlack.t -> int *)
+let get_station_distance k1 k2 tree = List.assoc k2 (search tree k1)
 
 (* テスト *)
 

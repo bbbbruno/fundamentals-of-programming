@@ -21,7 +21,7 @@ let station_list =
   [ station1; station2; station3; station4; station5; station6 ]
 
 (* 目的：直前に確定した駅pと未確定の駅のリストvを受け取ると、必要な更新処理を行なった後の未確定の駅のリストを返す *)
-(* updates : station_t -> station_t list -> Tree.t -> station_t list *)
+(* updates : station_t -> station_t list -> RedBlack.t -> station_t list *)
 let updates p v tree =
   List.map
     (fun q ->
