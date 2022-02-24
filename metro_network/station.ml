@@ -1,32 +1,29 @@
-(* 駅名ひとつ分のデータを表す型 *)
-type station_name_t = {
-  name : string; (* 駅名 *)
-  hiragana : string; (* ひらがなの駅名 *)
-  alphabet : string; (* ローマ字の駅名 *)
-  line : string; (* その駅が所属する路線名 *)
-}
-
 (* 駅名リストの例 *)
 
 let station_name_list =
   [
-    { name = "池袋"; hiragana = "いけぶくろ"; alphabet = "ikebukuro"; line = "丸ノ内線" };
+    { kanji = "池袋"; hiragana = "いけぶくろ"; alphabet = "ikebukuro"; line = "丸ノ内線" };
     {
-      name = "新大塚";
+      kanji = "新大塚";
       hiragana = "しんおおつか";
       alphabet = "shinotsuka";
       line = "丸ノ内線";
     };
-    { name = "茗荷谷"; hiragana = "みょうがだに"; alphabet = "myogadani"; line = "丸ノ内線" };
-    { name = "後楽園"; hiragana = "こうらくえん"; alphabet = "korakuen"; line = "丸ノ内線" };
     {
-      name = "本郷三丁目";
+      kanji = "茗荷谷";
+      hiragana = "みょうがだに";
+      alphabet = "myogadani";
+      line = "丸ノ内線";
+    };
+    { kanji = "後楽園"; hiragana = "こうらくえん"; alphabet = "korakuen"; line = "丸ノ内線" };
+    {
+      kanji = "本郷三丁目";
       hiragana = "ほんごうさんちょうめ";
       alphabet = "hongosanchome";
       line = "丸ノ内線";
     };
     {
-      name = "御茶ノ水";
+      kanji = "御茶ノ水";
       hiragana = "おちゃのみず";
       alphabet = "ochanomizu";
       line = "丸ノ内線";
@@ -44,10 +41,14 @@ type station_t = {
 (* make_station_list -> station_name_t list -> station_t list *)
 let rec make_station_list_and_initialize lst start =
   List.map
-    (fun { name = n; hiragana = h; alphabet = a; line = l } ->
-      if n = start then
-        { name = n; shortest_distance = 0.; station_names = [ n ] }
-      else { name = n; shortest_distance = infinity; station_names = [] })
+    (fun st ->
+      if st.kanji = start then
+        {
+          name = st.kanji;
+          shortest_distance = 0.;
+          station_names = [ st.kanji ];
+        }
+      else { name = st.kanji; shortest_distance = infinity; station_names = [] })
     lst
 
 (* テスト *)

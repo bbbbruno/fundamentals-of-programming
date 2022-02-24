@@ -1,10 +1,3 @@
-(* 最短経路における頂点である駅ひとつ分の情報を表す型 *)
-type station_t = {
-  name : string; (* 駅名（漢字） *)
-  shortest_distance : float; (* 最短距離 *)
-  station_names : string list; (* 手間の駅名のリスト *)
-}
-
 (* 駅の例 *)
 let station1 = { name = "池袋"; shortest_distance = infinity; station_names = [] }
 

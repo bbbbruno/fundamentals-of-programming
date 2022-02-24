@@ -1,13 +1,3 @@
-(* 最短経路における頂点である駅ひとつ分の情報を表す型 *)
-type station_t = {
-  name : string; (* 駅名（漢字） *)
-  shortest_distance : float; (* 最短距離 *)
-  station_names : string list; (* 手間の駅名のリスト *)
-}
-
-let station_connection_tree =
-  inserts_station_connection Empty global_station_connection_list
-
 (* 駅の例 *)
 let station1 = { name = "池袋"; shortest_distance = infinity; station_names = [] }
 
@@ -31,16 +21,17 @@ let station_list =
   [ station1; station2; station3; station4; station5; station6 ]
 
 (* 目的：直前に確定した駅pと未確定の駅のリストvを受け取ると、必要な更新処理を行なった後の未確定の駅のリストを返す *)
-(* updates : station_t -> station_t list -> station_connection_t list -> station_t list *)
-let updates p v lst =
+(* updates : station_t -> station_t list -> Tree.t -> station_t list *)
+let updates p v tree =
   List.map
     (fun q ->
       try
-        let d = get_station_distance p.name q.name lst in
+        let d = get_station_distance p.name q.name tree in
         if p.shortest_distance +. d < q.shortest_distance then
           {
             name = q.name;
-            shortest_distance = p.shortest_distance +. d;
+            shortest_distance =
+              Float.round ((p.shortest_distance +. d) *. 10.) /. 10.;
             station_names = q.name :: p.station_names;
           }
         else q
@@ -48,12 +39,12 @@ let updates p v lst =
     v
 
 (* テスト *)
-let test1 = updates station2 [] station_connection_tree = []
+let test1 = updates station2 [] global_station_connection_tree = []
 
 let test2 =
   updates station2
     [ station1; station4; station5; station6 ]
-    station_connection_tree
+    global_station_connection_tree
   = [
       {
         name = "池袋";
