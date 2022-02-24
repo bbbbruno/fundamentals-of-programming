@@ -1,3 +1,5 @@
+open Station_name
+
 (* 駅名リストの例 *)
 
 let station_name_list =

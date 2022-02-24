@@ -1,3 +1,5 @@
+open Station
+
 (* 駅の例 *)
 let station1 = { name = "池袋"; shortest_distance = infinity; station_names = [] }
 

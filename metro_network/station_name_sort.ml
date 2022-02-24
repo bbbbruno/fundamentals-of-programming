@@ -1,3 +1,5 @@
+open Station_name
+
 (* 駅名のデータの例 *)
 let station1 =
   { kanji = "池袋"; hiragana = "いけぶくろ"; alphabet = "ikebukuro"; line = "丸ノ内線" }
