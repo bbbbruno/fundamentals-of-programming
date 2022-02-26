@@ -1,6 +1,8 @@
 open Station
 open Station_connection_tree
 open Station_distance
+open Redblack
+open Heap
 
 (* 駅の例 *)
 let station1 = { name = "池袋"; shortest_distance = infinity; station_names = [] }
@@ -26,36 +28,26 @@ let station_list =
 
 (* 目的：直前に確定した駅pと未確定の駅のリストvを受け取ると、必要な更新処理を行なった後の未確定の駅のリストを返す *)
 (* updates : station_t -> station_t list -> Redblack.t -> station_t list *)
-let updates p v tree =
-  List.map
-    (fun q ->
+let updates p heap heap_tree conn_tree =
+  let lst = search conn_tree p.name in
+  List.fold_right
+    (fun (name, distance) result ->
+      let idx = search heap_tree name in
       try
-        let d = get_station_distance p.name q.name tree in
-        if p.shortest_distance +. d < q.shortest_distance then
-          {
-            name = q.name;
-            shortest_distance =
-              Float.round ((p.shortest_distance +. d) *. 10.) /. 10.;
-            station_names = q.name :: p.station_names;
-          }
-        else q
-      with Not_found -> q)
-    v
-
-(* テスト *)
-let test1 = updates station2 [] global_station_connection_tree = []
-
-let test2 =
-  updates station2
-    [ station1; station4; station5; station6 ]
-    global_station_connection_tree
-  = [
-      {
-        name = "池袋";
-        shortest_distance = 3.0;
-        station_names = [ "池袋"; "新大塚"; "茗荷谷" ];
-      };
-      station4;
-      station5;
-      station6;
-    ]
+        let _, q = get heap idx in
+        if p.shortest_distance +. distance < q.shortest_distance then
+          let d =
+            Float.round ((p.shortest_distance +. distance) *. 10.) /. 10.
+          in
+          let heap =
+            set result idx d
+              {
+                name = q.name;
+                shortest_distance = d;
+                station_names = q.name :: p.station_names;
+              }
+          in
+          heap
+        else result
+      with Not_found -> result)
+    lst heap

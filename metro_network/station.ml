@@ -39,30 +39,20 @@ type station_t = {
   station_names : string list; (* 手間の駅名のリスト *)
 }
 
-(* 目的：station_name_t型のリストを受け取ると、その駅名を使ってstation_t型のリストを作成する *)
-(* make_station_list -> station_name_t list -> station_t list *)
-let rec make_station_list_and_initialize lst start =
-  List.map
-    (fun st ->
-      if st.kanji = start then
-        {
-          name = st.kanji;
-          shortest_distance = 0.;
-          station_names = [ st.kanji ];
-        }
-      else { name = st.kanji; shortest_distance = infinity; station_names = [] })
+(* 目的：station_name_t型のリストを受け取ると、その駅名を使ってキーが最短距離、値がstation_t型のヒープを作成する *)
+(* make_station_list -> station_name_t list -> Heap.t *)
+let rec make_station_heap_and_initialize lst start =
+  List.fold_right
+    (fun st (t, h) ->
+      let d = if st.kanji = start then 0. else infinity in
+      let station_names = if st.kanji = start then [ st.kanji ] else [] in
+      let index, heap =
+        Heap.insert h d
+          { name = st.kanji; shortest_distance = d; station_names }
+      in
+      let tree = Redblack.insert t st.kanji index in
+      (tree, heap))
     lst
-
-(* テスト *)
-let test1 = make_station_list_and_initialize [] "茗荷谷" = []
-
-let test2 =
-  make_station_list_and_initialize station_name_list "茗荷谷"
-  = [
-      { name = "池袋"; shortest_distance = infinity; station_names = [] };
-      { name = "新大塚"; shortest_distance = infinity; station_names = [] };
-      { name = "茗荷谷"; shortest_distance = 0.; station_names = [ "茗荷谷" ] };
-      { name = "後楽園"; shortest_distance = infinity; station_names = [] };
-      { name = "本郷三丁目"; shortest_distance = infinity; station_names = [] };
-      { name = "御茶ノ水"; shortest_distance = infinity; station_names = [] };
-    ]
+    ( Redblack.empty,
+      Heap.create (List.length lst) 0.
+        { name = ""; shortest_distance = infinity; station_names = [] } )
